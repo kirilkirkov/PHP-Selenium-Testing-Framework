@@ -37,9 +37,9 @@ This framework provides a robust environment for automated browser testing using
 ## Installation
 
 1. **Clone the repository:**
-   ```bash
+```bash
 git clone https://github.com/kirilkirkov/PHP-Selenium-Testing-Framework.git
-   ```
+```
 2. **Install dependencies:**
 ```bash
 cd php-selenium-testing-framework
@@ -109,7 +109,7 @@ class SampleTest extends TestCase
 ```
 
 ## Running Tests
-Execute the tests using the command provided in the Usage section. The framework will automatically discover and run all tests matching the pattern *Test.php in the tests directory.
+Execute the tests using the command provided in the [Usage](#usage) section. The framework will automatically discover and run all tests matching the pattern *Test.php in the tests directory.
 
 ## Real-time Monitoring
 You can watch the tests in real-time using a VNC viewer. The Selenium Docker image allows VNC connections with the following details:
