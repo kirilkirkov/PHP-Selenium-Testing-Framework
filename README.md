@@ -135,5 +135,5 @@ We welcome contributions! Please follow these steps to contribute:
 - Push your branch and create a Pull Request.
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the <a href="https://github.com/kirilkirkov/PHP-Selenium-Testing-Framework/blob/main/LICENSE">LICENSE</a> file for details.
 
