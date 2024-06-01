@@ -31,6 +31,7 @@ class RunTests
 {
     private RemoteWebDriver $driver;
     private array $results = [];
+    private int $startTime;
 
     public function __construct()
     {
@@ -62,6 +63,7 @@ class RunTests
      */
     public function run(): void
     {
+        $this->startTime = time();
         $this->driver = $this->createWebDriver();
         
         $testFiles = $this->getTestFiles(TESTS_DIR);
@@ -215,13 +217,13 @@ class RunTests
 
         $traceString = '';
         if (SHOW_FAILED_TRACE && is_array($trace) && isset($trace[0])) {
-            $traceString = 'Trace: ' . PHP_EOL;
+            $traceString = PHP_EOL . ' Trace: ' . PHP_EOL;
             foreach ($trace as $item) {
                 $traceString .= 'File: ' . $item['file'] . ' Line: ' . $item['line'] . PHP_EOL;
             }
         }
 
-        $this->results[] = "\033[0;31m Test failed." . PHP_EOL . " Error type: $exceptionType with message: " . $e->getMessage() . PHP_EOL . " Test Class: " . get_class($testClass) . PHP_EOL . " Test Method: " . $method . PHP_EOL . " $traceString \033[0m";
+        $this->results[] = "\033[0;31m Test failed." . PHP_EOL . " Error type: $exceptionType " . PHP_EOL . " Error message: " . $e->getMessage() . PHP_EOL . " Test Class: " . get_class($testClass) . PHP_EOL . " Test Method: " . $method . " $traceString \033[0m";
     }
 
     /**
@@ -229,11 +231,15 @@ class RunTests
     */
     private function printResults(): void
     {
+        echo PHP_EOL;
         foreach ($this->results as $result) {
             echo '====================' . PHP_EOL;
             echo $result . PHP_EOL;
         }
         echo '====================' . PHP_EOL;
+        echo PHP_EOL;
+        echo "\033[0;34m Time taken: " . (time() - $this->startTime) . " seconds \033[0m" . PHP_EOL;
+        echo PHP_EOL;
     }
 
     public function __destruct()
