@@ -30,3 +30,5 @@ define('SELENIUM_REQUEST_TIMEOUT', 30000); // in milliseconds (30 seconds)
 
 define('MEMORY_LIMIT', '512M'); // in megabytes (-1 for unlimited)
 define('MAX_EXECUTION_TIME', 300); // in seconds
+
+define('RESULT_TYPE', 'terminal'); // json|xml|terminal

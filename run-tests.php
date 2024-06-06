@@ -14,6 +14,9 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Firefox\FirefoxOptions;
 
+use Src\Response;
+use Src\ResultsContainer;
+
 ini_set("memory_limit", MEMORY_LIMIT ?? '512M');
 ini_set('max_execution_time', MAX_EXECUTION_TIME ?? '300'); 
 
@@ -75,7 +78,8 @@ class RunTests
             $this->executeTestFile($file);
         }
 
-        $this->printResults();
+        $response = new Response();
+        $response->setStartTime($this->startTime)->handle();
     }
 
     /**
@@ -197,7 +201,7 @@ class RunTests
                 $testClass->afterEachTest();
             }
 
-            $this->results[] = "\033[0;32m Test passed. " . get_class($testClass) . "::" . $method . "\033[0m";
+            ResultsContainer::setSuccess(get_class($testClass), $method);
         } catch (Throwable $e) {
             $this->handleTestException($testClass, $method, $e);
         }
@@ -215,31 +219,13 @@ class RunTests
         $exceptionType = get_class($e);
         $trace = $e->getTrace();
 
-        $traceString = '';
-        if (SHOW_FAILED_TRACE && is_array($trace) && isset($trace[0])) {
-            $traceString = PHP_EOL . ' Trace: ' . PHP_EOL;
-            foreach ($trace as $item) {
-                $traceString .= 'File: ' . $item['file'] . ' Line: ' . $item['line'] . PHP_EOL;
-            }
-        }
-
-        $this->results[] = "\033[0;31m Test failed." . PHP_EOL . " Error type: $exceptionType " . PHP_EOL . " Error message: " . $e->getMessage() . PHP_EOL . " Test Class: " . get_class($testClass) . PHP_EOL . " Test Method: " . $method . " $traceString \033[0m";
-    }
-
-    /**
-     * Print the results of the test execution
-    */
-    private function printResults(): void
-    {
-        echo PHP_EOL;
-        foreach ($this->results as $result) {
-            echo '====================' . PHP_EOL;
-            echo $result . PHP_EOL;
-        }
-        echo '====================' . PHP_EOL;
-        echo PHP_EOL;
-        echo "\033[0;34m Time taken: " . (time() - $this->startTime) . " seconds \033[0m" . PHP_EOL;
-        echo PHP_EOL;
+        ResultsContainer::setFailed(
+            $exceptionType,
+            $e->getMessage(),
+            get_class($testClass),
+            $method,
+            $trace
+        );
     }
 
     public function __destruct()
