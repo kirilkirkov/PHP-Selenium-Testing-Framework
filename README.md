@@ -17,7 +17,7 @@ Welcome to the PHP Selenium Testing Framework project! This framework leverages 
 
 ## Introduction
 
-This framework provides a robust environment for automated browser testing using Selenium WebDriver. It supports Selenium Standalone Firefox Docker image and ensures seamless session management, including clean shutdowns on test completion or interruption.
+This framework provides a robust environment for automated browser testing using Selenium WebDriver. It supports Selenium Standalone Firefox Docker image and ensures seamless session management, including clean shutdowns on test completion or interruption and parallel testing.
 
 ## Features
 
