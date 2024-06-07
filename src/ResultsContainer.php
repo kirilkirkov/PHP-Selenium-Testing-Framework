@@ -10,6 +10,7 @@ namespace Src;
  */
 class ResultsContainer
 {
+    private const RESULTS_TMP_FILE_NAME = 'results.tmp';
     public const RESULTS_FILE_NAME = 'test-results';
     public const RESULTS_DIRECTORY = __DIR__ . '/../results/';
 
@@ -53,7 +54,7 @@ class ResultsContainer
 
     private static function getTmpFileName(): string
     {
-        return self::RESULTS_DIRECTORY . 'results.tmp';
+        return self::RESULTS_DIRECTORY . self::RESULTS_TMP_FILE_NAME;
     }
 
     /**

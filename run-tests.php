@@ -14,6 +14,8 @@ use Src\TestsParser;
 use Src\ParallelTesting;
 use Src\Response;
 use Src\ResultsContainer;
+use Src\Webhook;
+use Src\HtmlReport;
 
 ini_set("memory_limit", MEMORY_LIMIT ?? '512M');
 ini_set('max_execution_time', MAX_EXECUTION_TIME ?? '300'); 
@@ -40,6 +42,8 @@ if(PARALLEL_TESTS) {
         $parallelTesting->run($testFiles);
 
         (new Response())->handle();
+        (new HtmlReport())->generate();
+        (new Webhook())->send();
     }
     return;
 }
@@ -53,3 +57,5 @@ $testRunner = new TestsRunner();
 $testRunner->run($testFiles);
 
 (new Response())->handle();
+(new HtmlReport())->generate();
+(new Webhook())->send();
