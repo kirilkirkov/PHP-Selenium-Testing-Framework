@@ -35,3 +35,5 @@ define('RESULT_TYPE', 'terminal'); // json|xml|terminal
 
 define('PARALLEL_TESTS', false); // run tests in parallel
 define('MAX_PARALLEL_PROCESSES', 3); // max parallel processes
+
+define('CMD_OUTPUT', true); // show/hide command output

@@ -13,6 +13,7 @@ use Src\TestsRunner;
 use Src\TestsParser;
 use Src\ParallelTesting;
 use Src\Response;
+use Src\ResultsContainer;
 
 ini_set("memory_limit", MEMORY_LIMIT ?? '512M');
 ini_set('max_execution_time', MAX_EXECUTION_TIME ?? '300'); 
@@ -22,7 +23,6 @@ set_exception_handler(function ($e) {
     exit(1);
 });
 
-(new Response())->checkResultsDirectory();
 $testFiles = (new TestsParser())->getTestFiles();
 
 /**
@@ -34,8 +34,12 @@ if(PARALLEL_TESTS) {
         $testRunner = new TestsRunner();
         $testRunner->run([$argv[2]]);
     } else {
+        ResultsContainer::initialize();
+
         $parallelTesting = new ParallelTesting(); // Execute tests in parallel
         $parallelTesting->run($testFiles);
+
+        (new Response())->handle();
     }
     return;
 }
@@ -43,5 +47,9 @@ if(PARALLEL_TESTS) {
 /**
  * Run tests sequentially
  */
+ResultsContainer::initialize();
+
 $testRunner = new TestsRunner();
 $testRunner->run($testFiles);
+
+(new Response())->handle();

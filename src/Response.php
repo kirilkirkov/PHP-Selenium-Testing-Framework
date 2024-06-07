@@ -4,25 +4,11 @@ namespace Src;
 
 use Src\ResultsContainer;
 
+/**
+ * Class Response
+ */
 class Response
 {
-    private const RESULTS_FILE_NAME = 'test-results';
-    private const RESULTS_DIRECTORY = __DIR__ . '/../results/';
-
-    private int $startTime;
-
-    public function checkResultsDirectory(): void
-    {
-        $this->createResultsDirectory();
-        $this->clearResultsDirectory();
-    }
-
-    public function setStartTime(int $startTime): Response
-    {
-        $this->startTime = $startTime;
-        return $this;
-    }
-
     public function handle()
     {
         switch (RESULT_TYPE) {
@@ -49,8 +35,8 @@ class Response
         }
         echo '====================' . PHP_EOL;
         echo PHP_EOL;
-        echo "\033[0;34m Time taken: " . (time() - $this->startTime) . " seconds \033[0m" . PHP_EOL;
-        echo PHP_EOL;
+        // echo "\033[0;34m Time taken: " . (time() - $this->startTime) . " seconds \033[0m" . PHP_EOL;
+        // echo PHP_EOL;
     }
 
     /**
@@ -58,17 +44,8 @@ class Response
      */
     public function asJson(): void
     {
-        $fileName = self::RESULTS_DIRECTORY . self::RESULTS_FILE_NAME . '.json';
-
-        $counter = 0;
-        $newFileName = $fileName;
-        while (file_exists($newFileName)) {
-            $counter++;
-            $newFileName = self::RESULTS_DIRECTORY . self::RESULTS_FILE_NAME . '-' . $counter . '.json';
-        }
-
         file_put_contents(
-            $newFileName,
+            ResultsContainer::RESULTS_DIRECTORY . ResultsContainer::RESULTS_FILE_NAME . '.json',
             json_encode(ResultsContainer::getResults(), JSON_PRETTY_PRINT)
         );
     }
@@ -95,37 +72,7 @@ class Response
             }
         }
         
-        $fileName = self::RESULTS_DIRECTORY . self::RESULTS_FILE_NAME . '.xml';
-
-        $counter = 0;
-        $newFileName = $fileName;
-        while (file_exists($newFileName)) {
-            $counter++;
-            $newFileName = self::RESULTS_DIRECTORY . self::RESULTS_FILE_NAME . '-' . $counter . '.xml';
-
-        }
-
-        $xml->asXML($newFileName); 
-    }
-
-    private function createResultsDirectory(): void
-    {
-        if (!is_dir(__DIR__ . '/../results')) {
-            mkdir(__DIR__ . '/../results');
-        }
-
-        if (!is_writable(__DIR__ . '/../results')) {
-            throw new \Exception('Results directory is not writable');
-        }
-    }
-
-    private function clearResultsDirectory(): void
-    {
-        $files = glob(self::RESULTS_DIRECTORY . '*');
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
-        }
+        $fileName = ResultsContainer::RESULTS_DIRECTORY . ResultsContainer::RESULTS_FILE_NAME . '.xml';
+        $xml->asXML($fileName); 
     }
 }

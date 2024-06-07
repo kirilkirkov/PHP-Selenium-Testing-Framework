@@ -3,10 +3,14 @@
 namespace Src;
 
 use Src\TestsRunner;
+use Src\CmdMessages;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
+/**
+ * Class ParallelTesting
+ */
 class ParallelTesting
 {
     private int $maxProcesses;
@@ -19,6 +23,10 @@ class ParallelTesting
             throw new \Exception('Max parallel processes must be greater than 0');
         }
 
+        if (!function_exists('pcntl_async_signals') || !function_exists('pcntl_signal')) {
+            throw new \Exception('PCNTL functions are not available. Ensure PHP is compiled with --enable-pcntl');
+        }
+
         // Handle Ctrl+C or process termination
         pcntl_async_signals(true);
         pcntl_signal(SIGINT, function () {
@@ -28,6 +36,8 @@ class ParallelTesting
             }
             exit;
         });
+
+        CmdMessages::printMessage("Running tests in parallel with a maximum of {$this->maxProcesses} processes..");
      }
 
      /**
@@ -44,8 +54,11 @@ class ParallelTesting
                 usleep(100000); // Wait a bit before the next check to reduce overhead
             }
 
+            CmdMessages::printMessage("Running parallel test: {$file}");
+
             $process = new Process(['php', 'run-tests.php', '--parallel', $file]);
             $process->start();
+
             $this->processes[] = $process; // Store the process for later reference
         }
 
@@ -62,13 +75,16 @@ class ParallelTesting
     private function checkProcesses(): void
     {
         foreach ($this->processes as $key => $process) {
-            if (!$process->isRunning()) {
-                echo $process->getOutput();
-                if ($process->getExitCode() !== 0) {
-                    throw new ProcessFailedException($process);
-                }
-                unset($this->processes[$key]);
+            if ($process->isRunning()) {
+                continue;
             }
+
+            if ($process->getExitCode() !== 0) {
+                throw new ProcessFailedException($process);
+            }
+            unset($this->processes[$key]);
+
+            CmdMessages::printMessage("Parallel test completed: {$process->getCommandLine()}");
         }
     }
 }

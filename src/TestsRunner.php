@@ -7,8 +7,8 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Firefox\FirefoxOptions;
 
-use Src\Response;
 use Src\ResultsContainer;
+use Src\CmdMessages;
 
 /**
  * Class TestsRunner
@@ -22,6 +22,10 @@ class TestsRunner
 
     public function __construct()
     {
+        if (!function_exists('pcntl_async_signals') || !function_exists('pcntl_signal')) {
+            throw new \Exception('PCNTL functions are not available. Ensure PHP is compiled with --enable-pcntl');
+        }
+
         // Handle Ctrl+C or process termination
         pcntl_async_signals(true);
         pcntl_signal(SIGINT, function () {
@@ -57,9 +61,6 @@ class TestsRunner
         foreach ($testFiles as $file) {
             $this->executeTestFile($file);
         }
-
-        $response = new Response();
-        $response->setStartTime($this->startTime)->handle();
     }
 
     /**
@@ -116,6 +117,8 @@ class TestsRunner
      */
     private function executeTestFile(string $file): void
     {
+        CmdMessages::printMessage("Running test: $file");
+
         require_once $file;
 
         $className = 'Tests\\' . basename($file, '.php');
@@ -123,6 +126,8 @@ class TestsRunner
             $testClass = new $className($this->driver);
             $this->runTestMethods($testClass);
         }
+
+        CmdMessages::printMessage("Test completed $file completed.");
     }
 
     /**
