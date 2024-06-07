@@ -17,7 +17,7 @@ Welcome to the PHP Selenium Testing Framework project! This framework leverages 
 
 ## Introduction
 
-This framework provides a robust environment for automated browser testing using Selenium WebDriver. It supports Selenium Standalone Firefox Docker image and ensures seamless session management, including clean shutdowns on test completion or interruption and parallel testing.
+This framework provides a robust environment for automated browser testing using Selenium WebDriver. It supports both parallel and sequential testing, ensuring optimal performance and resource utilization. Additionally, the framework includes webhook integration for sending HTML or JSON test reports, and provides the capability to save HTML reports directly on the server.
 
 ## Features
 
@@ -29,6 +29,8 @@ This framework provides a robust environment for automated browser testing using
 - **Graceful Shutdown**: Clean up Selenium sessions on script termination or interruption.
 - **Logs**: Support of terminal, xml or json logging
 - **Parallel Testing**: Run tests in parallel to optimize testing time and resources.
+- **Webhook Integration**: Send HTML or JSON reports via webhooks.
+- **HTML Reports**: Generate and save HTML reports on the server for detailed test analysis.
 
 ## Requirements
 
