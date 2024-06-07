@@ -1,4 +1,3 @@
 /vendor
+/results
 composer.lock
-test-results.xml
-test-results.json

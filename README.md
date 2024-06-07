@@ -27,6 +27,8 @@ This framework provides a robust environment for automated browser testing using
 - **Docker Compatibility**: Easily start Selenium using Docker.
 - **Automatic Test Discovery**: Automatically discover and run tests located in the `tests` directory.
 - **Graceful Shutdown**: Clean up Selenium sessions on script termination or interruption.
+- **Logs**: Support of terminal, xml or json logging
+- **Parallel Testing**: Run tests in parallel to optimize testing time and resources.
 
 ## Requirements
 
@@ -47,8 +49,10 @@ composer install
 ```
 3. **Start Selenium with Docker:**
 ```bash
-docker run -d -p 4444:4444 -p 5900:5900 --shm-size=2g --restart=always selenium/standalone-firefox:latest
+docker run -d -e SE_NODE_MAX_SESSIONS=10 -p 4444:4444 -p 5900:5900 --shm-size=2g --restart=always selenium/standalone-firefox:latest
 ```
+
+<p>SE_NODE_MAX_SESSIONS is important for maximum count of paralell tests.</p>
 
 ## Configuration
 Ensure you have the necessary configuration files:

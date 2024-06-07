@@ -7,8 +7,15 @@ use Src\ResultsContainer;
 class Response
 {
     private const RESULTS_FILE_NAME = 'test-results';
+    private const RESULTS_DIRECTORY = __DIR__ . '/../results/';
 
     private int $startTime;
+
+    public function checkResultsDirectory(): void
+    {
+        $this->createResultsDirectory();
+        $this->clearResultsDirectory();
+    }
 
     public function setStartTime(int $startTime): Response
     {
@@ -51,9 +58,17 @@ class Response
      */
     public function asJson(): void
     {
-        // save as json file in parent directory
+        $fileName = self::RESULTS_DIRECTORY . self::RESULTS_FILE_NAME . '.json';
+
+        $counter = 0;
+        $newFileName = $fileName;
+        while (file_exists($newFileName)) {
+            $counter++;
+            $newFileName = self::RESULTS_DIRECTORY . self::RESULTS_FILE_NAME . '-' . $counter . '.json';
+        }
+
         file_put_contents(
-            __DIR__ . '/../' . self::RESULTS_FILE_NAME . '.json',
+            $newFileName,
             json_encode(ResultsContainer::getResults(), JSON_PRETTY_PRINT)
         );
     }
@@ -79,6 +94,38 @@ class Response
                 $test->addChild('trace', $result['trace']);
             }
         }
-        $xml->asXML(__DIR__ . '/../' . self::RESULTS_FILE_NAME . '.xml');
+        
+        $fileName = self::RESULTS_DIRECTORY . self::RESULTS_FILE_NAME . '.xml';
+
+        $counter = 0;
+        $newFileName = $fileName;
+        while (file_exists($newFileName)) {
+            $counter++;
+            $newFileName = self::RESULTS_DIRECTORY . self::RESULTS_FILE_NAME . '-' . $counter . '.xml';
+
+        }
+
+        $xml->asXML($newFileName); 
+    }
+
+    private function createResultsDirectory(): void
+    {
+        if (!is_dir(__DIR__ . '/../results')) {
+            mkdir(__DIR__ . '/../results');
+        }
+
+        if (!is_writable(__DIR__ . '/../results')) {
+            throw new \Exception('Results directory is not writable');
+        }
+    }
+
+    private function clearResultsDirectory(): void
+    {
+        $files = glob(self::RESULTS_DIRECTORY . '*');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
     }
 }

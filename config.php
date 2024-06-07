@@ -32,3 +32,6 @@ define('MEMORY_LIMIT', '512M'); // in megabytes (-1 for unlimited)
 define('MAX_EXECUTION_TIME', 300); // in seconds
 
 define('RESULT_TYPE', 'terminal'); // json|xml|terminal
+
+define('PARALLEL_TESTS', false); // run tests in parallel
+define('MAX_PARALLEL_PROCESSES', 3); // max parallel processes

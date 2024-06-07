@@ -9,13 +9,10 @@ require 'vendor/autoload.php';
 require 'config.php';
 require 'helpers.php';
 
-use Facebook\WebDriver\Remote\RemoteWebDriver;
-use Facebook\WebDriver\Remote\DesiredCapabilities;
-use Facebook\WebDriver\Chrome\ChromeOptions;
-use Facebook\WebDriver\Firefox\FirefoxOptions;
-
+use Src\TestsRunner;
+use Src\TestsParser;
+use Src\ParallelTesting;
 use Src\Response;
-use Src\ResultsContainer;
 
 ini_set("memory_limit", MEMORY_LIMIT ?? '512M');
 ini_set('max_execution_time', MAX_EXECUTION_TIME ?? '300'); 
@@ -25,216 +22,26 @@ set_exception_handler(function ($e) {
     exit(1);
 });
 
+(new Response())->checkResultsDirectory();
+$testFiles = (new TestsParser())->getTestFiles();
+
 /**
- * Class RunTests
- *
- * Main class to run Selenium tests
+ * Run tests in parallel
+ * /usr/bin/php run-tests.php --parallel tests/ExampleTest.php
  */
-class RunTests
-{
-    private RemoteWebDriver $driver;
-    private array $results = [];
-    private int $startTime;
-
-    public function __construct()
-    {
-        pcntl_async_signals(true);
-        pcntl_signal(SIGINT, function () {
-            echo "Exiting..." . PHP_EOL;
-            if(isset($this->driver)) {
-                $this->driver->quit();
-            }
-            exit;
-        });
-
-        register_shutdown_function([$this, 'shutdown']);
+if(PARALLEL_TESTS) {
+    if(count($argv) == 3 && $argv[1] === '--parallel') { // Run single test in parallel
+        $testRunner = new TestsRunner();
+        $testRunner->run([$argv[2]]);
+    } else {
+        $parallelTesting = new ParallelTesting(); // Execute tests in parallel
+        $parallelTesting->run($testFiles);
     }
-
-    /**
-     * Shutdown handler to quit the WebDriver
-     */
-    private function shutdown(): void
-    {
-        $error = error_get_last();
-        if ($error !== null && isset($this->driver)) {
-            $this->driver->quit();
-        }
-    }
-
-    /**
-     * Main method to run all tests
-     */
-    public function run(): void
-    {
-        $this->startTime = time();
-        $this->driver = $this->createWebDriver();
-        
-        $testFiles = $this->getTestFiles(TESTS_DIR);
-        if (empty($testFiles)) {
-            echo "No test files found in " . TESTS_DIR . PHP_EOL;
-            exit(1);
-        }
-        foreach ($testFiles as $file) {
-            $this->executeTestFile($file);
-        }
-
-        $response = new Response();
-        $response->setStartTime($this->startTime)->handle();
-    }
-
-    /**
-     * Create a WebDriver instance based on configuration
-     *
-     * @return RemoteWebDriver
-     * @throws Exception if an invalid driver is specified
-    */
-    private function createWebDriver(): RemoteWebDriver
-    {
-        $browserArguments = BROWSER_ARGUMENTS ?? [];
-        $browserCapabilities = BROWSER_CAPABILITIES ?? [];
-
-        switch (DRIVER) {
-            case 'chrome':
-                $chromeOptions = new ChromeOptions();
-                if(count($browserArguments) > 0) {
-                    $chromeOptions->addArguments($browserArguments);
-                }
-                
-                $capabilities = DesiredCapabilities::chrome();
-                $capabilities->setCapability(ChromeOptions::CAPABILITY_W3C, $chromeOptions);
-                if(count($browserCapabilities) > 0) {
-                    foreach ($browserCapabilities as $key => $value) {
-                        $capabilities->setCapability($key, $value);
-                    }
-                }
-
-                return RemoteWebDriver::create(HOST, $capabilities, SELENIUM_CONNECTION_TIMEOUT, SELENIUM_REQUEST_TIMEOUT);
-            case 'firefox':
-                $firefoxOptions = new FirefoxOptions();
-                if(count($browserArguments) > 0) {
-                    $firefoxOptions->addArguments($browserArguments);
-                }
-                
-                $capabilities = DesiredCapabilities::firefox();
-                $capabilities->setCapability(FirefoxOptions::CAPABILITY, $firefoxOptions);
-                if(count($browserCapabilities) > 0) {
-                    foreach ($browserCapabilities as $key => $value) {
-                        $capabilities->setCapability($key, $value);
-                    }
-                }
-                
-                return RemoteWebDriver::create(HOST, $capabilities, SELENIUM_CONNECTION_TIMEOUT, SELENIUM_REQUEST_TIMEOUT);
-            default:
-                throw new Exception('Invalid driver');
-        }
-    }
-
-    /**
-     * Get all test files from the specified directory
-     *
-     * @param string $directory
-     * @return array
-     */
-    private function getTestFiles(string $directory): array
-    {
-        if (!is_dir($directory)) {
-            throw new Exception("Directory '{$directory}' in TESTS_DIR from config.php not found.");
-        }
-
-        if (!is_readable($directory)) {
-            throw new Exception("Directory '{$directory}' in TESTS_DIR from config.php is not readable.");
-        }
-
-        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory));
-        $regex = new RegexIterator($iterator, '/^.+Test\.php$/i', RecursiveRegexIterator::GET_MATCH);
-
-        return array_keys(iterator_to_array($regex));
-    }
-
-    /**
-     * Execute a single test file
-     *
-     * @param string $file
-     */
-    private function executeTestFile(string $file): void
-    {
-        require_once $file;
-
-        $className = 'Tests\\' . basename($file, '.php');
-        if (class_exists($className)) {
-            $testClass = new $className($this->driver);
-            $this->runTestMethods($testClass);
-        }
-    }
-
-    /**
-     * Run all test methods in a test class
-     *
-     * @param object $testClass
-     */
-    private function runTestMethods(object $testClass): void
-    {
-        $methods = get_class_methods($testClass);
-        foreach ($methods as $method) {
-            if (strpos($method, '_test') !== false) {
-                $this->executeTestMethod($testClass, $method);
-            }
-        }
-    }
-
-    /**
-     * Execute a single test method
-     *
-     * @param object $testClass
-     * @param string $method
-     */
-    private function executeTestMethod(object $testClass, string $method): void
-    {
-        try {
-            if (method_exists($testClass, 'beforeEachTest')) {
-                $testClass->beforeEachTest();
-            }
-
-            $testClass->$method();
-
-            if (method_exists($testClass, 'afterEachTest')) {
-                $testClass->afterEachTest();
-            }
-
-            ResultsContainer::setSuccess(get_class($testClass), $method);
-        } catch (Throwable $e) {
-            $this->handleTestException($testClass, $method, $e);
-        }
-    }
-
-    /**
-     * Handle exceptions thrown during test execution
-     *
-     * @param object $testClass
-     * @param string $method
-     * @param Throwable $e
-    */
-    private function handleTestException(object $testClass, string $method, Throwable $e): void
-    {
-        $exceptionType = get_class($e);
-        $trace = $e->getTrace();
-
-        ResultsContainer::setFailed(
-            $exceptionType,
-            $e->getMessage(),
-            get_class($testClass),
-            $method,
-            $trace
-        );
-    }
-
-    public function __destruct()
-    {
-        if (isset($this->driver)) {
-            $this->driver->quit();
-        }
-    }
+    return;
 }
 
-$test = new RunTests();
-$test->run();
+/**
+ * Run tests sequentially
+ */
+$testRunner = new TestsRunner();
+$testRunner->run($testFiles);
