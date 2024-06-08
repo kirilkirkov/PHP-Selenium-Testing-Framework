@@ -13,6 +13,7 @@ Welcome to the PHP Selenium Testing Framework project! This framework leverages 
 - [Writing Tests](#writing-tests)
 - [Running Tests](#running-tests)
 - [Project structure](#project-structure)
+- [Screenshots](#screenshots)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -159,7 +160,7 @@ PHP-Selenium-Testing-Framework-main/
 
 ## Screenshots
 <p>HTML Report:</p>
-![html tests report](.github/screenshot-of-tests-html-report.png)
+<img src=".github/screenshot-of-tests-html-report.png" width="800">
 
 ## Contributing
 We welcome contributions! Please follow these steps to contribute:
@@ -171,4 +172,3 @@ We welcome contributions! Please follow these steps to contribute:
 
 ## License
 This project is licensed under the MIT License. See the <a href="https://github.com/kirilkirkov/PHP-Selenium-Testing-Framework/blob/main/LICENSE">LICENSE</a> file for details.
-
