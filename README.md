@@ -12,6 +12,7 @@ Welcome to the PHP Selenium Testing Framework project! This framework leverages 
 - [Usage](#usage)
 - [Writing Tests](#writing-tests)
 - [Running Tests](#running-tests)
+- [Project structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -73,7 +74,7 @@ php run-tests.php
 Press Ctrl+C to stop the tests gracefully. This will ensure that the Selenium session is properly terminated.
 
 ## Writing Tests
-Create your test classes in the tests directory. Test classes should follow the naming convention *Test.php and should be placed under the Tests namespace.
+Create your test classes in the tests directory. Test classes should follow the naming convention *Test.php and should be placed under the Tests namespace. Each separate test method should ends with suffix "_test".
 
 Example test class:
 ```php
@@ -131,6 +132,30 @@ To connect using a VNC viewer:
 - When prompted, enter the password secret.
 
 This allows you to observe the browser interactions as the tests are being executed.
+
+## Project structure
+```bash
+PHP-Selenium-Testing-Framework-main/
+├── .gitignore               # Specifies files and directories that should be ignored by Git
+├── LICENSE                  # License file for the project
+├── README.md                # Project description and instructions
+├── composer.json            # Composer configuration file containing project dependencies and metadata
+├── config.php               # Configuration file for the project
+├── helpers.php              # Helper functions file
+├── run-tests.php            # Script to run the tests
+├── src/                     # Directory containing the main source code of the project
+│   ├── CmdMessages.php          # File with command messages
+│   ├── HtmlReport.php           # File for generating HTML reports
+│   ├── ParallelTesting.php      # File for parallel test execution
+│   ├── Response.php             # File for handling responses
+│   ├── ResultsContainer.php     # File for the results container
+│   ├── TestsParser.php          # File for parsing test files
+│   ├── TestsRunner.php          # File for running tests
+│   └── Webhook.php              # File for webhooks
+└── tests/                   # Directory containing test files
+    ├── FailTest.php             # Sample example file for a failing test
+    └── GithubRepoTest.php       # Sample example file for testing a GitHub repository
+```
 
 ## Contributing
 We welcome contributions! Please follow these steps to contribute:
