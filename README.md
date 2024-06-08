@@ -157,6 +157,10 @@ PHP-Selenium-Testing-Framework-main/
     └── GithubRepoTest.php       # Sample example file for testing a GitHub repository
 ```
 
+## Screenshots
+<p>HTML Report:</p>
+![html tests report](.github/screenshot-of-tests-html-report.png)
+
 ## Contributing
 We welcome contributions! Please follow these steps to contribute:
 

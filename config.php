@@ -37,7 +37,7 @@ define('PARALLEL_TESTS', false); // run tests in parallel
 define('MAX_PARALLEL_PROCESSES', 3); // max parallel processes
 
 define('CMD_OUTPUT', true); // show/hide command output
-define('HTML_REPORT', false); // generate html report
+define('HTML_REPORT', false); // generate html report (for better results use xml or json RESULT_TYPE)
 
-define('WEBHOOK_URL', ''); // webhook url (post request with test results in json format)
+define('WEBHOOK_URL', ''); // webhook url (post request with test results in html(in base64) or json format)
 define('WEBHOOK_FORMAT', 'json'); // json|html (if use HTML format for webhooks, set HTML_REPORT to true)
